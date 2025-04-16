@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+        name="fc:frame"
+        content='{"version":"next","imageUrl":"https://actions.artlu.xyz/favicon.png","aspectRatio":"3:2","splashImageUrl":"https://actions.artlu.xyz/favicon.png","splashBackgroundColor":"#000000","button":{"title":"Act 👉","action":{"type":"launch_frame","name":"Actions","url":"https://actions-siwf.artlu.workers.dev"}}}'
+    />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Actions Mini App</title>
+    <script src="https://cdn.jsdelivr.net/npm/@farcaster/frame-sdk/dist/index.min.js"></script>
+    <script src="sdk-wallet.js"></script>
+    <script src="clipboard.js"></script>
+    <script src="clients.js"></script>
+    <script src="body.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+    <div id="main-content" class="main-content">
+        <div id="farcaster-connnect" class="farcaster-connect"></div>
+        <div
+        id="clear-clipboard-container"
+        class="clear-clipboard-container"
+        hidden
+        >
+        <button
+            onclick="handleClearClipboardClick()"
+            class="clear-clipboard-button"
+        >
+            Clear Clipboard
+        </button>
+        </div>
+        <div class="button-grid">
+        <div id="recaster-button" onclick="handleRecasterClick()">
+            <img src="https://recaster.org/logo.png" alt="Recaster Logo" />
+        </div>
+        <div id="supercast-button" onclick="handleSupercastClick()">
+            <img
+            src="https://www.super.sc/supercast-logo-black.png"
+            alt="Supercast Logo"
+            />
+        </div>
+        <div id="firefly-button" onclick="handleFireflyClick()">
+            <img
+            src="https://firefly.mask.social/favicon.ico"
+            alt="Firefly Logo"
+            />
+        </div>
+        <div id="neynar-button" onclick="handleNeynarExplorerClick()">
+            <img
+            src="https://explorer.neynar.com/neynarplanet.png"
+            alt="Neynar Explorer Logo"
+            />
+        </div>
+        </div>
+        <div id="results" hidden></div>
+        <div id="bookmark-button" class="bookmark-button">
+        <button onclick="handleBookmarkClick()">
+            <span>add to Decent Bookmarks</span>
+            <span class="emoji">🔖</span>
+        </button>
+        </div>
+        <div class="help-button-container">
+        <button onclick="showModal()" class="help-button">
+            <span class="emoji">❓</span>
+        </button>
+        </div>
+        <div id="full-modal" class="full-modal" hidden>
+        <div class="full-modal-content">
+            <h2>Wat dis?</h2>
+            <p>
+            Decent Bookmarks <span class="emoji">🔖</span>, a Farcaster
+            shared data project launched 20 May 2024.
+            </p>
+            <p>
+            A decentralized bookmarks data store that allows you to save
+            casts (Read + Own) across different Farcaster clients.
+            </p>
+            <div class="github-link-container">
+            <a
+                href="https://github.com/artlu99/decent-bookmarks"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                <span>FOSS (MIT License) </span>
+                <svg
+                class="github-logo"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                >
+                <path
+                    d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"
+                    fill="currentColor"
+                />
+                </svg>
+            </a>
+            </div>
+            <button onclick="closeModal()" class="close-modal-button">
+            ×
+            </button>
+        </div>
+        </div>
+        <div class="coffee-button-container">
+        <a
+            onclick="handleUSDCTransfer(amt=5.0, recipient='0x868d077D5Ae521e972d0494486807363E9d65604')"
+            class="coffee-button-link"
+        >
+            <div class="coffee-button-wrapper">
+            <img
+                src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
+                alt="Buy Me A Coffee"
+                class="coffee-button"
+            />
+            <div class="usdc-amount">
+                5
+                <img
+                src="https://s2.coinmarketcap.com/static/img/coins/64x64/3408.png"
+                alt="USDC Logo"
+                class="usdc-logo"
+                />
+            </div>
+            </div>
+        </a>
+        </div>
+        <div id="thank-you-popup" class="thank-you-popup" hidden>
+        <div class="thank-you-content">
+            <h3>Thank You! 🎉</h3>
+            <p>Your support means a lot!</p>
+            <button onclick="closeThankYouPopup()" class="close-popup-button">
+            Close
+            </button>
+        </div>
+        </div>
+        <div class="github-link-container">
+        <a
+            href="https://github.com/artlu99/actions-mini-app"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            <span>FOSS (MIT License) </span>
+            <svg
+            class="github-logo"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            >
+            <path
+                d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"
+                fill="currentColor"
+            />
+            </svg>
+        </a>
+        </div>
+        <h1>👉 Actions Mini App</h1>
+        <div id="dev-details" class="dev-details" hidden>
+        <button onclick="handleSignOut()">Sign Out</button>
+        <div id="secureDiv" class="secure-div" hidden>
+            <h4>Protected Route</h4>
+            <pre id="secureResults"></pre>
+        </div>
+        </div>
+        <button
+        id="dev-toggle"
+        onclick="toggleDevDetails()"
+        class="dev-toggle-button"
+        >
+        I am a dev
+        </button>
+    </div>
+
+    <script>
+        frame.sdk.actions.ready();
+
+        // Start automatic sign-in when page loads
+        handleAutomaticSignIn();
+
+        // Check clipboard on page load
+        checkClipboardContent();
+
+        // Check clipboard periodically (every 2 seconds)
+        setInterval(checkClipboardContent, 2000);
+
+        // Toggle dev details visibility
+        function toggleDevDetails() {
+        const devDetails = document.getElementById("dev-details");
+        const toggleButton = document.getElementById("dev-toggle");
+        if (devDetails.hidden) {
+            devDetails.hidden = false;
+            toggleButton.textContent = "Hide details";
+        } else {
+            devDetails.hidden = true;
+            toggleButton.textContent = "I am a dev";
+        }
+        }
+    </script>
+    </body>
+</html>

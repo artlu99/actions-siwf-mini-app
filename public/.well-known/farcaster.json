@@ -1,0 +1,19 @@
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOjY1NDYsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHgyMWNBOUYwRjdDMGI1OWY2MTZiMUQ5NjMyNWQ1NUI2MmM5NjYxRDZkIn0",
+    "payload": "eyJkb21haW4iOiJhY3Rpb25zLXNpd2YuYXJ0bHUud29ya2Vycy5kZXYifQ",
+    "signature": "MHg5NDJhYzk2ZDY1YzAwMTBiOGFjYzQzZDIwYjA1NjczNDdmMGYwMjQwNjU2NjNiNzFiOTVjODNlNzAwMDVkY2YyMjA0OTRmNmIxNDEwN2E4NTg0YWI3MWZmYmVkZmZmYjBlZmZlN2JhY2UwYmY3Y2NlMmJiYzZkZmYxOWFkZTUyYTFi"
+  },
+  "frame": {
+    "version": "next",
+    "name": "Actions",
+    "iconUrl": "https://actions.artlu.xyz/favicon.png",
+    "homeUrl": "https://actions-siwf.artlu.workers.dev",
+    "imageUrl": "https://actions.artlu.xyz/favicon.png", 
+    "aspectRatio": "3:2",
+    "buttonTitle": "Act 👉",
+    "splashImageUrl": "https://actions.artlu.xyz/favicon.png",
+    "splashBackgroundColor": "#000000",
+    "webhookUrl": "https://actions-siwf.artlu.workers.dev/api/webhook"
+  }
+}

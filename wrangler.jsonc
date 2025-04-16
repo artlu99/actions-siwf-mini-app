@@ -1,0 +1,24 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "actions-siwf",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-04-14",
+  "vars": {
+    "MY_VAR": "Hello from Hono 🔥 on Cloudflare Workers",
+    "JWT_ALGORITHM": "HS256",
+    "BASE_URL": "https://actions-siwf.artlu.workers.dev"
+  },
+  "assets": {
+    "directory": "public"
+  },
+  "kv_namespaces": [
+    {
+      "id": "0191919191919", // USE YOUR OWN KV ID
+      "binding": "KV"
+    }
+  ],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  }
+}
