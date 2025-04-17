@@ -48,7 +48,7 @@ async function sendETH(amt, to) {
     return txHash;
   } catch (error) {
     console.error("Error sending ETH:", error);
-    alert(`Failed to send ETH: ${error.message}`);
+    showToast(`Failed to send ETH: ${error.message}`, "error");
   }
 }
 
@@ -74,10 +74,10 @@ async function sendUSDC(amt, recipient) {
       method: "eth_sendTransaction",
       params: [{ from, to, data, value: "0x0" }],
     });
-    
+
     return txHash;
   } catch (error) {
     console.error("Error sending USDC:", error);
-    alert(`Failed to send USDC: ${error.message}`);
+    showToast(`Failed to send USDC: ${error.message}`, "error");
   }
 }

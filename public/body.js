@@ -1,3 +1,5 @@
+let inMemoryJwtDoNotPersist = undefined;
+
 // nonce to prevent replay attacks
 async function getSecureNonce() {
   return crypto.randomUUID().replace(/-/g, "");
@@ -39,8 +41,8 @@ async function handleAutomaticSignIn() {
 
     const data = await response.json();
 
-    // Store token and user data in sessionStorage
-    sessionStorage.setItem(`token-${insecureFid}`, data.token);
+    // token stored in memory only, is fragile
+    inMemoryJwtDoNotPersist = data.token;
 
     // Update UI
     connectElement.className = "farcaster-connect connected";
@@ -63,15 +65,12 @@ async function handleAutomaticSignIn() {
 }
 
 async function handleSignOut() {
-  const context = await frame.sdk.context;
-  const insecureFid = context?.user?.fid;
-  const token = sessionStorage.getItem(`token-${insecureFid}`);
-  if (token) {
+  if (inMemoryJwtDoNotPersist) {
     try {
       const response = await fetch("/api/protected/signout", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${inMemoryJwtDoNotPersist}`,
           Accept: "application/json",
           "Content-Type": "application/json",
         },
@@ -85,8 +84,8 @@ async function handleSignOut() {
     } catch (err) {
       console.error("Error during sign out:", err);
     } finally {
-      // Always remove token, even if API call fails
-      sessionStorage.removeItem(`token-${insecureFid}`);
+      // Always clear memory, even if API call fails
+      inMemoryJwtDoNotPersist = undefined;
       // Fetch protected results after sign-out (will show error due to missing token)
       await fetchProtectedResults();
     }
@@ -105,21 +104,10 @@ async function fetchCastData() {
       return null;
     }
 
-    const context = await frame.sdk.context;
-    const insecureFid = context?.user?.fid;
-    const token = sessionStorage.getItem(`token-${insecureFid}`);
-    const headers = {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    };
-
-    if (token) {
-      headers[Authorization] = `Bearer ${token}`;
-    }
-
     // Call the API
     const response = await fetch(`/api/${encodeURIComponent(text)}`, {
-      headers,
+      Accept: "application/json",
+      "Content-Type": "application/json",
     });
     if (!response.ok) {
       throw new Error(`${text}: Unable to find cast ${response.status}`);
@@ -164,9 +152,7 @@ async function handleClearClipboardClick() {
     document.getElementById("clear-clipboard-container").hidden = true;
   } catch (err) {
     console.error("Error clearing clipboard:", err);
-    alert(
-      "Failed to clear clipboard. Please make sure clipboard access is allowed."
-    );
+    showToast(`Failed to clear clipboard: ${err.message}`, "error");
   }
 }
 
@@ -189,43 +175,42 @@ async function handleUSDCTransfer(amt, recipient) {
       setTimeout(closeThankYouPopup, 5000);
     } else {
       console.error("USDC transfer failed:", result);
-      alert(`Failed to send USDC: ${result}`);
+      showToast(`Failed to send USDC: ${result}`, "error");
     }
   } catch (error) {
     console.error("USDC transfer failed:", error);
-    alert(`Failed to send USDC: ${error.message}`);
+    showToast(`Failed to send USDC: ${error.message}`, "error");
   }
 }
 
 async function fetchProtectedResults() {
-  const context = await frame.sdk.context;
-  const insecureFid = context?.user?.fid;
-  const token = sessionStorage.getItem(`token-${insecureFid}`);
-
   const secureDiv = document.getElementById("secureDiv");
   const secureResults = document.getElementById("secureResults");
-  const bookmarkButton = document.getElementById("bookmark-button");
 
   try {
     secureDiv.hidden = false;
     secureResults.textContent = "Fetching protected results...";
 
+    // this logic below does not throw an error if auth fails
     const response = await fetch("/api/protected/secret", {
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(inMemoryJwtDoNotPersist
+          ? { Authorization: `Bearer ${inMemoryJwtDoNotPersist}` }
+          : {}),
       },
     });
 
     const data = await response.json();
-    secureResults.textContent = JSON.stringify(data, null, 2);
 
-    // Show bookmark button if authenticated
-    bookmarkButton.hidden = !token;
+    // the message below is either a successful result, or an error message
+    //
+    // an alternative would be to offer the user a graceful chance to re-authorize,
+    // which could occur after an inactivity timeout
+    secureResults.textContent = JSON.stringify(data, null, 2);
   } catch (error) {
     secureResults.textContent = `Error: ${error.message}`;
-    bookmarkButton.hidden = true;
   }
 }
 
@@ -236,10 +221,7 @@ async function handleBookmarkClick() {
       throw new Error("No content in clipboard");
     }
 
-    const context = await frame.sdk.context;
-    const insecureFid = context?.user?.fid;
-    const token = sessionStorage.getItem(`token-${insecureFid}`);
-    if (!token) {
+    if (!inMemoryJwtDoNotPersist) {
       throw new Error("Not authenticated");
     }
 
@@ -249,22 +231,22 @@ async function handleBookmarkClick() {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${inMemoryJwtDoNotPersist}`,
         },
         body: JSON.stringify({ hashOrUrl: text }),
       });
 
       const res = await response.json();
       if (!response.ok) {
-        alert(`Failed to create bookmark: ${res.message}`);
+        showToast(`Failed to create bookmark: ${res.message}`, "error");
       } else {
-        alert(res.message);
+        showToast(res.message, "success");
       }
     } catch (error) {
       throw new Error(error);
     }
   } catch (error) {
-    alert(`Failed to create bookmark: ${error.message}`);
+    showToast(`Failed to create bookmark: ${error.message}`, "error");
   }
 }
 
@@ -278,6 +260,35 @@ function closeModal() {
   const modal = document.getElementById("full-modal");
   modal.setAttribute("hidden", "");
   document.body.style.overflow = "";
+}
+
+function showToast(message, type = "info", duration = 3000) {
+  // Remove any existing toast
+  const existingToast = document.querySelector(".toast");
+  if (existingToast) {
+    existingToast.remove();
+  }
+
+  // Create new toast element
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+
+  // Add to DOM
+  document.body.appendChild(toast);
+
+  // Show toast
+  setTimeout(() => {
+    toast.classList.add("show");
+  }, 10);
+
+  // Hide and remove toast after duration
+  setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => {
+      toast.remove();
+    }, 300); // Wait for transition to complete
+  }, duration);
 }
 
 // Close modal when clicking outside the content

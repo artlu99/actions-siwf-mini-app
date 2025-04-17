@@ -831,4 +831,53 @@ h1 {
 	.full-modal-content .github-link-container a:hover .github-logo {
 		color: #ffffff !important;
 	}
+}
+
+/* Toast Notification Styles */
+.toast {
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	padding: 12px 24px;
+	border-radius: 8px;
+	background-color: rgba(var(--bg-color-rgb), 0.95);
+	color: var(--text-color);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+	font-size: 14px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	opacity: 0;
+	transform: translateY(20px);
+	transition: all 0.3s ease;
+	pointer-events: none;
+	z-index: 1000;
+}
+
+.toast.show {
+	opacity: 1;
+	transform: translateY(0);
+	pointer-events: auto;
+}
+
+.toast.success {
+	background-color: rgba(40, 167, 69, 0.95);
+	color: white;
+}
+
+.toast.error {
+	background-color: rgba(220, 53, 69, 0.95);
+	color: white;
+}
+
+.toast.info {
+	background-color: rgba(0, 123, 255, 0.95);
+	color: white;
+}
+
+@media (prefers-color-scheme: dark) {
+	.toast {
+		background-color: rgba(30, 30, 30, 0.95);
+		border: 1px solid rgba(255, 255, 255, 0.1);
+	}
 } 
