@@ -174,8 +174,7 @@ async function handleUSDCTransfer(amt, recipient) {
       // Hide popup after 5 seconds
       setTimeout(closeThankYouPopup, 5000);
     } else {
-      console.error("USDC transfer failed:", result);
-      showToast(`Failed to send USDC: ${result}`, "error");
+      showToast("Did not send USDC", "info");
     }
   } catch (error) {
     console.error("USDC transfer failed:", error);
@@ -238,7 +237,7 @@ async function handleBookmarkClick() {
 
       const res = await response.json();
       if (!response.ok) {
-        showToast(`Failed to create bookmark: ${res.message}`, "error");
+        showToast(`Did not create bookmark: ${res.message}`, "info");
       } else {
         showToast(res.message, "success");
       }
