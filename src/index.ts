@@ -79,7 +79,7 @@ app
         const payload = {
           sub: "farcaster_user",
           iat: Math.floor(Date.now() / 1000),
-          exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24, // 24 hours
+          exp: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
           fid: fid,
         };
 

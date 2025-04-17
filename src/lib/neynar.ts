@@ -6,9 +6,10 @@ import type {
 import { fetcher } from "itty-fetcher";
 
 const neynarApi = fetcher({ base: "https://api.neynar.com" });
-const TTL = 30 * 24 * 60 * 60; // 30 days
+const LONG_TTL = 30 * 24 * 60 * 60; // 30 days
+const SHORT_TTL = 30 * 60; // 30 minutes
 
-const cachedFetcherGet = async <T>(env: Env, url: string) => {
+const cachedFetcherGet = async <T>(env: Env, url: string, ttl: number) => {
   const cache = await env.KV.get(`neynar:${url}`);
 
   if (cache) {
@@ -23,7 +24,7 @@ const cachedFetcherGet = async <T>(env: Env, url: string) => {
   });
 
   await env.KV.put(`neynar:${url}`, JSON.stringify(res), {
-    expirationTtl: TTL,
+    expirationTtl: ttl,
   });
 
   return res as T;
@@ -42,7 +43,8 @@ export const lookupCastByHashOrWarpcastUrl = async (
       env,
       `/v2/farcaster/cast?identifier=${encodeURIComponent(
         hashOrUrl
-      )}&type=${type}`
+      )}&type=${type}`,
+      LONG_TTL
     );
     return res;
   } catch (error) {
@@ -57,7 +59,8 @@ export const getUserInfo = async (env: Env, fid: number) => {
   try {
     const res = await cachedFetcherGet<BulkUsersResponse>(
       env,
-      `/v2/farcaster/user/bulk?fids=${fid}`
+      `/v2/farcaster/user/bulk?fids=${fid}`,
+      SHORT_TTL
     );
     return res.users[0];
   } catch (error) {

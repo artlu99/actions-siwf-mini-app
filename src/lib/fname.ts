@@ -15,7 +15,7 @@ type TransfersResponse = {
 
 const fnamesApi = fetcher({ base: "https://fnames.farcaster.xyz" });
 
-const cachedFetcherGet = async <T>(env: Env, url: string) => {
+const cachedFetcherGet = async <T>(env: Env, url: string, ttl: number) => {
   const cache = await env.KV.get(`fnames:${url}`);
 
   if (cache) {
@@ -25,7 +25,7 @@ const cachedFetcherGet = async <T>(env: Env, url: string) => {
   const res = await fnamesApi.get(url);
 
   await env.KV.put(`fnames:${url}`, JSON.stringify(res), {
-    expirationTtl: 86400, // 1 day
+    expirationTtl: ttl,
   });
 
   return res as T;
@@ -35,7 +35,8 @@ export const getCustodyAddress = async (env: Env, fid: number) => {
   try {
     const res = await cachedFetcherGet<TransfersResponse>(
       env,
-      `/transfers?fid=${fid}`
+      `/transfers?fid=${fid}`,
+      2 * 60 * 60 // 2 hours
     );
     return res.transfers.length > 0
       ? res.transfers.slice().sort((a, b) => b.timestamp - a.timestamp)[0].owner
