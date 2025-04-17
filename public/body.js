@@ -41,6 +41,10 @@ async function handleAutomaticSignIn() {
 
     const data = await response.json();
 
+    if (data.fid !== insecureFid) {
+      throw new Error("Mismatched credentials");
+    }
+
     // token stored in memory only, is fragile
     inMemoryJwtDoNotPersist = data.token;
 
