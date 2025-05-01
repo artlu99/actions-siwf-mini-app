@@ -21,7 +21,7 @@ async function handleSupercastClick() {
 }
 
 async function handleFireflyClick() {
-  await redirect("https://firefly.mask.social", (h) =>
+  await redirect("https://firefly.social", (h) =>
     h ? `/post/farcaster/${h}` : ""
   );
 }
